@@ -42,10 +42,10 @@ An AI-powered web application that recommends the most suitable crop based on so
 ## Demo
 
 ### Input
-![Input](screenshots/input.png)
+<img src="screenshots/input.png" width="600"/>
 
 ### Output
-![Output](screenshots/output.png)
+<img src="screenshots/output.png" width="600"/>
 
 ---
 
