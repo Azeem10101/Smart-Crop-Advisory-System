@@ -41,12 +41,11 @@ An AI-powered web application that recommends the most suitable crop based on so
 
 ## Demo
 
-Add screenshots here.
+### Input
+![Input](screenshots/input.png)
 
-Example:
-
-![Input](screenshot1.png)  
-![Output](screenshot2.png)
+### Output
+![Output](screenshots/output.png)
 
 ---
 
