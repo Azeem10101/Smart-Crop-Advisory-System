@@ -2,126 +2,212 @@
 <html>
 <head>
     <title>Smart Crop Advisory System</title>
+
     <style>
         body {
+            margin: 0;
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #0f172a, #1e293b);
             color: white;
-            text-align: center;
-            padding: 40px;
         }
 
         h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
+            text-align: center;
+            margin-top: 30px;
         }
 
-        p {
-            margin-bottom: 20px;
+        .subtitle {
+            text-align: center;
             color: #cbd5f5;
+            margin-bottom: 30px;
         }
 
-        form {
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 50px;
+        }
+
+        .card {
             background: rgba(255,255,255,0.05);
             padding: 30px;
             border-radius: 20px;
-            display: inline-block;
             backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .form-card {
+            width: 320px;
         }
 
         input {
-            margin: 8px;
+            width: 100%;
             padding: 12px;
-            width: 220px;
+            margin: 10px 0;
             border-radius: 10px;
             border: none;
             outline: none;
         }
 
         button {
-            padding: 12px 25px;
-            margin-top: 15px;
+            width: 100%;
+            padding: 12px;
             background: #22c55e;
             border: none;
             border-radius: 10px;
             color: white;
             cursor: pointer;
-            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        button:disabled {
+            background: gray;
         }
 
         button:hover {
-            background: #16a34a;
+            transform: scale(1.05);
         }
 
-        .result {
-            margin-top: 25px;
-            font-size: 18px;
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 15px;
-            display: inline-block;
+        .results {
+            width: 400px;
         }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(10px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        .result-card {
+            transition: 0.3s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.08);
+        }
+
     </style>
 </head>
 
 <body>
 
-    <h1>🌱 Smart Crop Advisory System</h1>
-    <p>AI-powered crop recommendation based on soil and climate conditions</p>
+<h1>🌱 Smart Crop Advisory System</h1>
+<p class="subtitle">AI-powered crop recommendation based on soil & climate</p>
 
-    <form id="form">
-        <input type="text" placeholder="Enter City (optional)" id="city"><br>
+<div class="container">
 
-        <input type="number" step="any" placeholder="Nitrogen" id="n"><br>
-        <input type="number" step="any" placeholder="Phosphorus" id="p"><br>
-        <input type="number" step="any" placeholder="Potassium" id="k"><br>
-        <input type="number" step="any" placeholder="Temperature" id="t"><br>
-        <input type="number" step="any" placeholder="Humidity" id="h"><br>
-        <input type="number" step="any" placeholder="pH Value" id="ph"><br>
-        <input type="number" step="any" placeholder="Rainfall" id="r"><br>
+    <!-- INPUT -->
+    <div class="card form-card">
+        <input id="city" placeholder="Enter City">
+        <input id="n" type="number" placeholder="Nitrogen">
+        <input id="p" type="number" placeholder="Phosphorus">
+        <input id="k" type="number" placeholder="Potassium">
+        <input id="t" type="number" placeholder="Temperature">
+        <input id="h" type="number" placeholder="Humidity">
+        <input id="ph" type="number" placeholder="pH Value">
+        <input id="r" type="number" placeholder="Rainfall">
 
-        <button type="submit">Predict</button>
-    </form>
+        <button id="predictBtn">Predict</button>
+    </div>
 
-    <div class="result" id="result"></div>
+    <!-- OUTPUT -->
+    <div class="card results" id="result">
+        Results will appear here...
+    </div>
 
-    <script>
-    document.getElementById("form").addEventListener("submit", async function(e) {
-        e.preventDefault();
+</div>
 
-        let resultDiv = document.getElementById("result");
-        resultDiv.innerHTML = "⏳ Analyzing soil & environmental data...";
+<script>
 
-        let features = [
-            Number(n.value),
-            Number(p.value),
-            Number(k.value),
-            Number(t.value),
-            Number(h.value),
-            Number(ph.value),
-            Number(r.value)
-        ];
+document.getElementById("predictBtn").addEventListener("click", predict);
 
-        let res = await fetch("/predict", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        body: JSON.stringify({ features })
-        });
-
-        let data = await res.json();
-
-        let riskColor = data.risk === "High" ? "red" :
-                        data.risk === "Medium" ? "orange" : "lightgreen";
-
-        resultDiv.innerHTML = `
-            🌾 <b>${data.prediction}</b><br>
-            📊 Confidence: ${data.confidence}%<br>
-            ⚠️ Risk: <span style="color:${riskColor}">${data.risk}</span>
-        `;
+document.getElementById("city").addEventListener("change", async function(){
+    let res = await fetch("/get_weather", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({city: this.value})
     });
-    </script>
+
+    let data = await res.json();
+
+    if (!data.error) {
+        t.value = data.temperature;
+        h.value = data.humidity;
+    }
+});
+
+async function predict() {
+
+    let btn = document.getElementById("predictBtn");
+    btn.innerText = "Analyzing...";
+    btn.disabled = true;
+
+    let features = [
+        Number(n.value),
+        Number(p.value),
+        Number(k.value),
+        Number(t.value),
+        Number(h.value),
+        Number(ph.value),
+        Number(r.value)
+    ];
+
+    let res = await fetch("/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({features})
+    });
+
+    let data = await res.json();
+
+    btn.innerText = "Predict";
+    btn.disabled = false;
+
+    let best = data.best_crop;
+    let top3 = data.top_crops;
+
+    let html = `
+    <div class="fade-in">
+
+        <!-- BEST -->
+        <div style="background:#14532d;padding:20px;border-radius:15px;margin-bottom:20px;">
+            <h3>🏆 ${best.crop}</h3>
+            <p>💰 ₹${best.profit}</p>
+            <p>📊 ${best.confidence}%</p>
+
+            <p><b>Why?</b><br>${best.reason.join("<br>")}</p>
+
+            <p><b>Advice:</b><br>${data.advice.map(a=>"✔ "+a).join("<br>")}</p>
+        </div>
+
+        <!-- TOP -->
+        ${top3.map((c,i)=>`
+            <div class="result-card" style="padding:15px;border-radius:10px;margin-bottom:10px;background:rgba(255,255,255,0.05);">
+                <b>${i+1}. ${c.crop}</b><br>
+                ₹${c.profit}
+
+                <div style="background:#1e293b;border-radius:5px;margin-top:5px;">
+                    <div style="width:${c.confidence}%;background:#22c55e;padding:5px;font-size:12px;">
+                        ${c.confidence}%
+                    </div>
+                </div>
+            </div>
+        `).join("")}
+
+        <p>⚠️ Risk: ${data.risk}</p>
+
+    </div>
+    `;
+
+    document.getElementById("result").innerHTML = html;
+}
+
+</script>
 
 </body>
 </html>
