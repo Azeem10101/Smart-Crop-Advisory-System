@@ -171,6 +171,14 @@ async function predict() {
     let best = data.best_crop;
     let top3 = data.top_crops;
 
+    //  NEW: Explanation section
+    let explanationHTML = `
+        <div style="margin-top:15px;padding:15px;border-radius:10px;background:#1e293b;">
+            <b>🔍 Why this crop?</b><br><br>
+            ${data.explanation.map(e => `• ${e.reason || "No explanation available"}`).join("<br>")}
+        </div>
+    `;
+
     let html = `
     <div class="fade-in">
 
@@ -183,6 +191,8 @@ async function predict() {
             <p><b>Why?</b><br>${best.reason.join("<br>")}</p>
 
             <p><b>Advice:</b><br>${data.advice.map(a=>"✔ "+a).join("<br>")}</p>
+
+            ${explanationHTML}
         </div>
 
         <!-- TOP -->

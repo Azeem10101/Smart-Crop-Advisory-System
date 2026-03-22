@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import pickle
 import numpy as np
 import requests
+import shap
 import os
 from dotenv import load_dotenv
 
@@ -9,13 +10,19 @@ load_dotenv()
 
 app = Flask(__name__)
 
+# Load model
 model = pickle.load(open("model.pkl", "rb"))
 
+# SHAP explainer
+explainer = shap.TreeExplainer(model)
+
+# API Key
 API_KEY = os.getenv("WEATHER_API_KEY")
 if not API_KEY:
     raise ValueError("API key not found. Set WEATHER_API_KEY in .env file")
 
 
+# Crop Data
 CROP_DATA = {
     "Rice": {"price": 2200, "yield": 25},
     "Maize": {"price": 1800, "yield": 20},
@@ -53,15 +60,16 @@ def predict():
 
     if not data or "features" not in data:
         return jsonify({"error": "Invalid input"})
-    
+
     if len(data["features"]) != 7:
         return jsonify({"error": "Expected 7 input features"})
-    
+
     features = np.array(data["features"]).reshape(1, -1)
 
-    # 🌱 ADVICE SYSTEM INPUT
+    # Feature unpacking
     n, p, k, temp, humidity, ph, rainfall = features[0]
 
+    # Advice system
     advice = []
 
     if n < 50:
@@ -79,8 +87,95 @@ def predict():
     if not advice:
         advice.append("Conditions are optimal for this crop")
 
+    # Prediction
     probabilities = model.predict_proba(features)[0]
 
+    # -------------------------
+    # SHAP EXPLANATION (ROBUST)
+    # -------------------------
+    try:
+        shap_values = explainer(features)
+
+        top_class_index = np.argmax(probabilities)
+
+        # Handles newer SHAP versions
+        if hasattr(shap_values, "values"):
+            shap_contributions = shap_values.values[0][top_class_index]
+        else:
+            # Fallback for older versions
+            shap_values = explainer.shap_values(features)
+            shap_contributions = shap_values[top_class_index][0]
+
+        feature_names = ["N", "P", "K", "Temperature", "Humidity", "pH", "Rainfall"]
+
+        explanation = []
+
+        for i in range(len(feature_names)):
+            value = shap_contributions[i]
+            feature = feature_names[i]
+
+            # Convert to meaningful explanation
+            if feature == "Temperature":
+                if value > 0:
+                    text = "Temperature supports crop growth"
+                else:
+                    text = "Temperature is not ideal for this crop"
+
+            elif feature == "Humidity":
+                if value > 0:
+                    text = "Humidity level is favorable"
+                else:
+                    text = "Humidity is slightly lower than ideal"
+
+            elif feature == "pH":
+                if value > 0:
+                    text = "Soil pH is suitable for this crop"
+                else:
+                    text = "Soil pH may not be optimal"
+
+            elif feature == "Rainfall":
+                if value > 0:
+                    text = "Rainfall conditions are beneficial"
+                else:
+                    text = "Rainfall may be insufficient"
+
+            elif feature == "N":
+                if value > 0:
+                    text = "Nitrogen level supports growth"
+                else:
+                    text = "Nitrogen level is slightly low"
+
+            elif feature == "P":
+                if value > 0:
+                    text = "Phosphorus level is adequate"
+                else:
+                    text = "Phosphorus level could be improved"
+
+            elif feature == "K":
+                if value > 0:
+                    text = "Potassium level is good"
+                else:
+                    text = "Potassium level is slightly low"
+
+            explanation.append({
+                "feature": feature,
+                "impact": float(round(value, 3)),
+                "reason": text
+            })
+
+        # Sort by importance
+        explanation = sorted(explanation, key=lambda x: abs(x["impact"]), reverse=True)
+
+    except Exception as e:
+        explanation = [{
+            "feature": "Error",
+            "impact": 0,
+            "reason": "Unable to generate explanation"
+        }]
+
+    # -------------------------
+
+    # Top 3 crops
     top_indices = probabilities.argsort()[-3:][::-1]
 
     results = []
@@ -97,6 +192,7 @@ def predict():
             "profit": profit
         })
 
+    # Risk calculation
     top_conf = results[0]["confidence"]
 
     if top_conf < 40:
@@ -106,6 +202,7 @@ def predict():
     else:
         risk = "Low"
 
+    # Best crop decision
     best_crop = max(
         results,
         key=lambda x: (x["profit"] * 0.7 + x["confidence"] * 1000 * 0.3)
@@ -135,7 +232,8 @@ def predict():
         "top_crops": results,
         "risk": risk,
         "best_crop": decision,
-        "advice": advice
+        "advice": advice,
+        "explanation": explanation[:5]
     })
 
 
