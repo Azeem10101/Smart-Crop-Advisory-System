@@ -1,3 +1,20 @@
+## Problem
+
+Farmers often rely on generic recommendations without considering real-time soil and climate conditions, leading to suboptimal crop choices and reduced profitability.
+
+## Solution
+
+This system provides AI-driven crop recommendations using soil nutrients and environmental conditions, enhanced with explainability, risk analysis, and profit-based decision making.
+
+## Key Features
+
+- AI-powered crop prediction using machine learning
+- SHAP-based explainability with human-readable insights
+- Profit estimation and decision-based ranking
+- Risk analysis and reliability scoring
+- Real-time weather integration
+- Interactive dashboard with modern UI
+
 # Smart Crop Advisory System
 
 An AI-powered web application that recommends the most suitable crop based on soil conditions, weather data, and economic factors, along with actionable farming advice.
@@ -39,16 +56,22 @@ An AI-powered web application that recommends the most suitable crop based on so
 
 ---
 
-## Demo
+## Preview
 
 ### Dashboard
-![Dashboard](./assets/dashboard.png)
+<p align="center">
+  <img src="./assets/dashboard.png" width="900"/>
+</p>
 
 ### Input Form
-![Input](./assets/input.png)
+<p align="center">
+  <img src="./assets/input-form.png" width="900"/>
+</p>
 
-### Risk & Analysis
-![Analysis](./assets/analysis.png)
+### Analysis & Risk
+<p align="center">
+  <img src="./assets/analysis.png" width="900"/>
+</p>
 
 ---
 
