@@ -11,8 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* ─── Design Tokens ─────────────────────────────────────── */
-        :root {
+        /* ─── Dark Theme (default) ──────────────────────────────── */
+        :root,
+        [data-theme="dark"] {
             --bg: #080f1a;
             --surface: #0d1626;
             --elevated: #111f35;
@@ -20,34 +21,89 @@
             --card-alt: #0f1c2e;
             --border: rgba(99, 179, 237, 0.1);
             --border-hover: rgba(99, 179, 237, 0.22);
-            --glow-green: rgba(34, 197, 94, 0.18);
-            --glow-blue: rgba(59, 130, 246, 0.15);
 
-            --green: #22c55e;
-            --green-dark: #16a34a;
-            --green-muted: rgba(34, 197, 94, 0.15);
-            --blue: #3b82f6;
-            --blue-muted: rgba(59, 130, 246, 0.15);
-            --amber: #f59e0b;
-            --amber-muted: rgba(245, 158, 11, 0.12);
-            --red: #ef4444;
-            --red-muted: rgba(239, 68, 68, 0.12);
+            --green: #2d7a50;
+            --green-bright: #34d67a;
+            --green-dark: #21613e;
+            --green-muted: rgba(45, 122, 80, 0.18);
+            --blue: #5b8dbe;
+            --blue-muted: rgba(91, 141, 190, 0.15);
+            --amber: #d4a24e;
+            --amber-muted: rgba(212, 162, 78, 0.12);
+            --red: #d95555;
+            --red-muted: rgba(217, 85, 85, 0.12);
 
             --text: #e2e8f0;
             --text-2: #94a3b8;
             --text-3: #64748b;
             --text-4: #3d5166;
 
-            --r-sm: 8px;
-            --r-md: 12px;
-            --r-lg: 16px;
-            --r-xl: 20px;
+            --hero-bg: linear-gradient(135deg, #052819 0%, #0a3d22 55%, #0b4f2a 100%);
+            --hero-border: rgba(45, 122, 80, 0.25);
+            --hero-glow: rgba(45, 122, 80, 0.06);
+            --hero-text-muted: #6ee7a0;
+            --hero-insight: #86efac;
+            --ring-stroke: #34d67a;
+            --ring-bg: rgba(255, 255, 255, 0.07);
+
+            --input-bg: var(--elevated);
+            --focus-ring: rgba(91, 141, 190, 0.15);
 
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
             --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
             --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.45);
             --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
 
+        /* ─── Light Theme ───────────────────────────────────────── */
+        [data-theme="light"] {
+            --bg: #f5f3ef;
+            --surface: #ece8e1;
+            --elevated: #ffffff;
+            --card: #ffffff;
+            --card-alt: #faf8f5;
+            --border: rgba(90, 80, 60, 0.12);
+            --border-hover: rgba(90, 80, 60, 0.25);
+
+            --green: #28704f;
+            --green-bright: #2d8f5e;
+            --green-dark: #1d5a3e;
+            --green-muted: rgba(40, 112, 79, 0.1);
+            --blue: #3a6fa0;
+            --blue-muted: rgba(58, 111, 160, 0.1);
+            --amber: #b58a2e;
+            --amber-muted: rgba(181, 138, 46, 0.1);
+            --red: #c0392b;
+            --red-muted: rgba(192, 57, 43, 0.08);
+
+            --text: #2c2c2c;
+            --text-2: #555555;
+            --text-3: #888888;
+            --text-4: #bbbbbb;
+
+            --hero-bg: linear-gradient(135deg, #e0f5e8 0%, #c5e8d4 55%, #b0dfc2 100%);
+            --hero-border: rgba(40, 112, 79, 0.25);
+            --hero-glow: rgba(40, 112, 79, 0.05);
+            --hero-text-muted: #28704f;
+            --hero-insight: #1d5a3e;
+            --ring-stroke: #28704f;
+            --ring-bg: rgba(0, 0, 0, 0.06);
+
+            --input-bg: #ffffff;
+            --focus-ring: rgba(58, 111, 160, 0.12);
+
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        /* ─── Common Tokens ─────────────────────────────────────── */
+        :root {
+            --r-sm: 8px;
+            --r-md: 12px;
+            --r-lg: 16px;
+            --r-xl: 20px;
             --transition: 0.22s ease;
         }
 
@@ -71,6 +127,7 @@
             color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
+            transition: background 0.35s ease, color 0.35s ease;
         }
 
         /* ─── Dashboard Shell ────────────────────────────────────── */
@@ -92,6 +149,7 @@
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: var(--elevated) transparent;
+            transition: background 0.35s ease, border-color 0.35s ease;
         }
 
         .sidebar::-webkit-scrollbar {
@@ -104,8 +162,16 @@
         }
 
         .brand {
-            padding: 28px 28px 20px;
+            padding: 24px 28px 18px;
             border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-left {
+            display: flex;
+            flex-direction: column;
         }
 
         .brand-logo {
@@ -123,10 +189,32 @@
         }
 
         .brand-tagline {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-3);
-            margin-top: 4px;
+            margin-top: 3px;
             letter-spacing: 0.2px;
+        }
+
+        /* ─── Theme Toggle ───────────────────────────────────────── */
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            background: var(--elevated);
+            color: var(--text-2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: background var(--transition), border-color var(--transition), transform 0.4s ease;
+            flex-shrink: 0;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-hover);
+            transform: rotate(30deg);
         }
 
         /* ─── Form ───────────────────────────────────────────────── */
@@ -177,14 +265,14 @@
         .field input {
             width: 100%;
             padding: 10px 13px;
-            background: var(--elevated);
+            background: var(--input-bg);
             border: 1px solid var(--border);
             border-radius: var(--r-sm);
             color: var(--text);
             font-family: inherit;
             font-size: 0.875rem;
             outline: none;
-            transition: border-color var(--transition), box-shadow var(--transition);
+            transition: border-color var(--transition), box-shadow var(--transition), background 0.35s ease;
         }
 
         .field input::placeholder {
@@ -194,12 +282,12 @@
 
         .field input:focus {
             border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+            box-shadow: 0 0 0 3px var(--focus-ring);
         }
 
         .field input.input-error {
             border-color: var(--red);
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+            box-shadow: 0 0 0 3px var(--red-muted);
         }
 
         .field-error {
@@ -231,7 +319,14 @@
 
         /* ─── Analyze Button ─────────────────────────────────────── */
         .form-footer {
-            padding: 20px 28px 28px;
+            padding: 16px 28px 24px;
+        }
+
+        .form-sub {
+            font-size: 0.7rem;
+            color: var(--text-4);
+            text-align: center;
+            margin-bottom: 10px;
         }
 
         .btn-analyze {
@@ -247,23 +342,15 @@
             cursor: pointer;
             letter-spacing: 0.2px;
             transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-            box-shadow: 0 2px 12px rgba(34, 197, 94, 0.25);
+            box-shadow: 0 2px 12px rgba(45, 122, 80, 0.25);
             position: relative;
             overflow: hidden;
-        }
-
-        .btn-analyze::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 255, 255, 0);
-            transition: background var(--transition);
         }
 
         .btn-analyze:hover {
             background: var(--green-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35);
+            box-shadow: 0 4px 20px rgba(45, 122, 80, 0.35);
         }
 
         .btn-analyze:active {
@@ -282,6 +369,7 @@
             padding: 36px 36px 56px;
             background: var(--bg);
             overflow-y: auto;
+            transition: background 0.35s ease;
         }
 
         /* ─── Placeholder ────────────────────────────────────────── */
@@ -316,7 +404,7 @@
         .placeholder p {
             font-size: 0.85rem;
             color: var(--text-3);
-            max-width: 280px;
+            max-width: 300px;
             line-height: 1.6;
         }
 
@@ -333,8 +421,8 @@
         .spinner {
             width: 40px;
             height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.06);
-            border-top-color: var(--green);
+            border: 3px solid var(--border);
+            border-top-color: var(--green-bright);
             border-radius: 50%;
             animation: spin 0.75s linear infinite;
         }
@@ -369,7 +457,7 @@
             color: var(--red);
             padding: 40px;
             background: var(--red-muted);
-            border: 1px solid rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(217, 85, 85, 0.2);
             border-radius: var(--r-xl);
         }
 
@@ -406,19 +494,23 @@
         }
 
         .fade-section:nth-child(2) {
-            animation-delay: 0.08s;
+            animation-delay: 0.07s;
         }
 
         .fade-section:nth-child(3) {
-            animation-delay: 0.16s;
+            animation-delay: 0.14s;
         }
 
         .fade-section:nth-child(4) {
-            animation-delay: 0.24s;
+            animation-delay: 0.21s;
         }
 
         .fade-section:nth-child(5) {
-            animation-delay: 0.32s;
+            animation-delay: 0.28s;
+        }
+
+        .fade-section:nth-child(6) {
+            animation-delay: 0.35s;
         }
 
         @keyframes fadeUp {
@@ -435,11 +527,11 @@
 
         /* ─── Hero Panel ─────────────────────────────────────────── */
         .hero-panel {
-            background: linear-gradient(135deg, #052819 0%, #0a3d22 55%, #0b4f2a 100%);
-            border: 1px solid rgba(34, 197, 94, 0.2);
+            background: var(--hero-bg);
+            border: 1px solid var(--hero-border);
             border-radius: var(--r-xl);
             padding: 28px;
-            box-shadow: 0 0 40px rgba(34, 197, 94, 0.06);
+            box-shadow: 0 0 40px var(--hero-glow);
             display: grid;
             grid-template-columns: 1fr auto;
             gap: 24px;
@@ -449,23 +541,24 @@
         .hero-left {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            background: rgba(34, 197, 94, 0.15);
-            border: 1px solid rgba(34, 197, 94, 0.25);
+            background: var(--green-muted);
+            border: 1px solid var(--hero-border);
             border-radius: 20px;
             padding: 3px 12px;
             font-size: 0.68rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #4ade80;
-            margin-bottom: 10px;
+            color: var(--hero-text-muted);
+            margin-bottom: 6px;
+            width: fit-content;
         }
 
         .hero-crop-name {
@@ -473,7 +566,7 @@
             font-weight: 800;
             letter-spacing: -1px;
             line-height: 1.1;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .hero-meta {
@@ -495,7 +588,7 @@
 
         .hero-stat-lbl {
             font-size: 0.7rem;
-            color: #6ee7a0;
+            color: var(--hero-text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -506,20 +599,28 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
+        [data-theme="light"] .hero-divider {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
         .hero-note-text {
-            margin-top: 14px;
+            margin-top: 10px;
             font-size: 0.8rem;
-            color: #86efac;
+            color: var(--hero-insight);
             font-style: italic;
             line-height: 1.5;
             border-top: 1px solid rgba(255, 255, 255, 0.07);
-            padding-top: 12px;
+            padding-top: 10px;
+        }
+
+        [data-theme="light"] .hero-note-text {
+            border-top-color: rgba(0, 0, 0, 0.06);
         }
 
         .hero-low-conf {
             font-size: 0.78rem;
-            color: #fbbf24;
-            margin-bottom: 8px;
+            color: var(--amber);
+            margin-bottom: 4px;
         }
 
         /* ─── Circular Confidence Ring ───────────────────────────── */
@@ -549,15 +650,13 @@
         }
 
         .ring-bg {
-            stroke: rgba(255, 255, 255, 0.07);
+            stroke: var(--ring-bg);
         }
 
         .ring-fill {
-            stroke: #22c55e;
+            stroke: var(--ring-stroke);
             stroke-dasharray: 226;
-            /* 2π × 36 ≈ 226 */
             stroke-dashoffset: 226;
-            /* start hidden, animated via JS */
             transition: stroke-dashoffset 1s ease;
         }
 
@@ -573,15 +672,99 @@
 
         .conf-ring-lbl {
             font-size: 0.68rem;
-            color: #6ee7a0;
+            color: var(--hero-text-muted);
             text-transform: uppercase;
             letter-spacing: 0.6px;
+        }
+
+        /* ─── Condition Summary Block ────────────────────────────── */
+        .condition-block {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 16px 20px;
+            transition: border-color var(--transition), background 0.35s ease;
+        }
+
+        .condition-text {
+            font-size: 0.84rem;
+            color: var(--text-2);
+            line-height: 1.55;
+            font-style: italic;
+        }
+
+        .condition-text::before {
+            content: '📌 ';
+        }
+
+        /* ─── Status Badges Row ──────────────────────────────────── */
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: var(--r-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: var(--card);
+            transition: background 0.35s ease;
+        }
+
+        /* ─── Score Bar ──────────────────────────────────────────── */
+        .score-wrap {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .score-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .score-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-3);
+        }
+
+        .score-val {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .score-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--green);
+            width: 0;
+            transition: width 1s ease;
         }
 
         /* ─── Warnings Banner ────────────────────────────────────── */
         .warnings-panel {
             background: var(--amber-muted);
-            border: 1px solid rgba(245, 158, 11, 0.25);
+            border: 1px solid rgba(212, 162, 78, 0.25);
             border-radius: var(--r-lg);
             padding: 16px 20px;
             animation: slideIn 0.35s ease forwards;
@@ -622,7 +805,7 @@
             align-items: flex-start;
             gap: 8px;
             font-size: 0.82rem;
-            color: #fde68a;
+            color: var(--amber);
             line-height: 1.5;
         }
 
@@ -648,7 +831,7 @@
             border: 1px solid var(--border);
             border-radius: var(--r-lg);
             padding: 22px;
-            transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+            transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition), background 0.35s ease;
         }
 
         .dash-card:hover {
@@ -672,11 +855,11 @@
         /* ─── Why Card ───────────────────────────────────────────── */
         .why-summary {
             font-size: 0.85rem;
-            color: #86efac;
+            color: var(--hero-insight);
             line-height: 1.6;
             margin-bottom: 14px;
             padding-bottom: 13px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--border);
             font-style: italic;
         }
 
@@ -698,6 +881,15 @@
             color: var(--text-2);
             line-height: 1.45;
             transition: background var(--transition);
+        }
+
+        [data-theme="light"] .reason-pill {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.06);
+        }
+
+        [data-theme="light"] .reason-pill:hover {
+            background: rgba(0, 0, 0, 0.04);
         }
 
         .reason-pill:hover {
@@ -734,22 +926,34 @@
 
         .badge-green {
             background: var(--green-muted);
-            color: #4ade80;
+            color: var(--green-bright);
         }
 
         .badge-amber {
             background: var(--amber-muted);
-            color: #fbbf24;
+            color: var(--amber);
         }
 
         .badge-red {
             background: var(--red-muted);
-            color: #f87171;
+            color: var(--red);
         }
 
         .badge-blue {
             background: var(--blue-muted);
-            color: #7dd3fc;
+            color: var(--blue);
+        }
+
+        [data-theme="light"] .badge-green {
+            color: var(--green);
+        }
+
+        [data-theme="light"] .badge-amber {
+            color: var(--amber);
+        }
+
+        [data-theme="light"] .badge-red {
+            color: var(--red);
         }
 
         .checklist {
@@ -775,6 +979,21 @@
         }
 
         /* ─── Alternatives ───────────────────────────────────────── */
+        .alt-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-3);
+            margin-bottom: 4px;
+        }
+
+        .alt-sub {
+            font-size: 0.75rem;
+            color: var(--text-4);
+            margin-bottom: 12px;
+        }
+
         .alt-row {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -786,7 +1005,7 @@
             border: 1px solid var(--border);
             border-radius: var(--r-lg);
             padding: 18px;
-            transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+            transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition), background 0.35s ease;
             cursor: default;
         }
 
@@ -820,7 +1039,7 @@
         .bar-bg {
             width: 100%;
             height: 5px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--border);
             border-radius: 3px;
             overflow: hidden;
         }
@@ -869,6 +1088,11 @@
                 flex-direction: row;
                 justify-content: flex-start;
             }
+
+            .status-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
 
         @media (max-width: 500px) {
@@ -889,8 +1113,11 @@
         <!-- ─── Sidebar ─────────────────────────────────────────────── -->
         <aside class="sidebar">
             <div class="brand">
-                <div class="brand-logo"><span class="leaf">🌱</span> CropAdvisor</div>
-                <div class="brand-tagline">AI-powered agricultural decision system</div>
+                <div class="brand-left">
+                    <div class="brand-logo"><span class="leaf">🌱</span> CropAdvisor</div>
+                    <div class="brand-tagline">Intelligent agricultural decision support</div>
+                </div>
+                <button id="themeToggle" class="theme-toggle" title="Toggle theme">🌙</button>
             </div>
 
             <div class="form-body">
@@ -901,7 +1128,7 @@
                     <div class="field">
                         <label for="city">City Name</label>
                         <input id="city" type="text" placeholder="e.g. Mumbai">
-                        <div class="city-hint">↑ Auto-fills temperature &amp; humidity</div>
+                        <div class="city-hint">↑ Auto-fills temperature &amp; humidity from weather data</div>
                     </div>
                 </div>
 
@@ -957,7 +1184,8 @@
             </div>
 
             <div class="form-footer">
-                <button id="predictBtn" class="btn-analyze">Analyze Crop</button>
+                <div class="form-sub">Based on soil nutrients &amp; climate conditions</div>
+                <button id="predictBtn" class="btn-analyze">🌾 Get Crop Recommendation</button>
             </div>
         </aside>
 
@@ -966,7 +1194,8 @@
             <div class="placeholder">
                 <div class="placeholder-icon">📊</div>
                 <h2>No Analysis Yet</h2>
-                <p>Enter your soil and climate parameters on the left, then click <strong>Analyze Crop</strong>.</p>
+                <p>Enter your soil and climate parameters on the left, then click <strong>Get Crop
+                        Recommendation</strong>.</p>
             </div>
         </main>
 
@@ -975,6 +1204,23 @@
     <!-- ─── Scripts ─────────────────────────────────────────────────── -->
     <script>
 
+        // ── Theme Toggle ────────────────────────────────────────────
+        const themeBtn = document.getElementById("themeToggle");
+        const savedTheme = localStorage.getItem("crop-theme") || "dark";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        themeBtn.textContent = savedTheme === "dark" ? "🌙" : "☀️";
+
+        themeBtn.addEventListener("click", () => {
+            const current = document.documentElement.getAttribute("data-theme");
+            const next = current === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("crop-theme", next);
+            themeBtn.textContent = next === "dark" ? "🌙" : "☀️";
+            themeBtn.style.transform = "rotate(360deg)";
+            setTimeout(() => { themeBtn.style.transform = ""; }, 400);
+        });
+
+        // ── Event Listeners ────────────────────────────────────────
         document.getElementById("predictBtn").addEventListener("click", predict);
 
         // Auto-fill weather from city
@@ -991,7 +1237,7 @@
             }
         });
 
-        // ── Validation ───────────────────────────────────────────────────
+        // ── Validation ───────────────────────────────────────────────
         const FIELD_RULES = [
             { id: "n", errId: "err-n", label: "Nitrogen", min: 0, max: 140 },
             { id: "p", errId: "err-p", label: "Phosphorus", min: 0, max: 145 },
@@ -1040,7 +1286,24 @@
             });
         });
 
-        // ── Predict ──────────────────────────────────────────────────────
+        // ── Multi-phase loading messages ────────────────────────────
+        const LOADING_PHASES = [
+            "Analyzing soil composition…",
+            "Evaluating climate suitability…",
+            "Computing optimal crop recommendation…"
+        ];
+
+        function startLoadingPhases(el) {
+            let phase = 0;
+            const textEl = el.querySelector(".load-text");
+            if (!textEl) return null;
+            return setInterval(() => {
+                phase = (phase + 1) % LOADING_PHASES.length;
+                textEl.textContent = LOADING_PHASES[phase];
+            }, 1200);
+        }
+
+        // ── Predict ──────────────────────────────────────────────────
         async function predict() {
             if (!validate()) return;
 
@@ -1051,12 +1314,14 @@
             btn.disabled = true;
 
             resultEl.innerHTML = `
-        <div class="loading-state">
-            <div class="spinner"></div>
-            <div class="load-text">Analyzing soil and climate conditions…</div>
-            <div class="load-sub">Running AI model, please wait</div>
-        </div>
-    `;
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <div class="load-text">${LOADING_PHASES[0]}</div>
+                    <div class="load-sub">Running AI model, please wait</div>
+                </div>
+            `;
+
+            const loadingInterval = startLoadingPhases(resultEl);
 
             const features = FIELD_RULES.map(r => Number(document.getElementById(r.id).value));
 
@@ -1071,24 +1336,26 @@
                 data = await res.json();
                 if (data.error) throw new Error(data.error);
             } catch (err) {
-                btn.innerText = "Analyze Crop";
+                if (loadingInterval) clearInterval(loadingInterval);
+                btn.innerText = "🌾 Get Crop Recommendation";
                 btn.disabled = false;
                 resultEl.innerHTML = `
-            <div class="error-banner">
-                <div class="ei">⚠️</div>
-                <div class="et">Could not get a recommendation</div>
-                <div class="es">${err.message || "An unexpected error occurred. Please try again."}</div>
-            </div>
-        `;
+                    <div class="error-banner">
+                        <div class="ei">⚠️</div>
+                        <div class="et">Could not get a recommendation</div>
+                        <div class="es">${err.message || "An unexpected error occurred. Please try again."}</div>
+                    </div>
+                `;
                 return;
             }
 
-            btn.innerText = "Analyze Crop";
+            if (loadingInterval) clearInterval(loadingInterval);
+            btn.innerText = "🌾 Get Crop Recommendation";
             btn.disabled = false;
 
             const best = data.best_crop;
-            const top3 = data.top_crops;
-            const alternatives = top3.slice(1);
+            const top3 = data.top_crops || [];
+            const alternatives = top3.length > 1 ? top3.slice(1) : [];
 
             // Risk badge
             const riskMap = {
@@ -1106,132 +1373,173 @@
             };
             const flagCls = flagMap[data.confidence_flag] || "badge-amber";
 
-            // Circular ring: dashoffset = 226 - (conf/100)*226
+            // Ring offset
             const ringOffset = Math.round(226 - (best.confidence / 100) * 226);
 
-            // Low confidence inline warning
+            // Low conf warning
             const lowConfHTML = best.confidence < 40
                 ? `<div class="hero-low-conf">⚠️ Low confidence — results may not be reliable</div>`
                 : "";
 
+            // Soil status icon
+            const soilIcons = { "Healthy": "🟢", "Moderate": "🟡", "Poor": "🔴" };
+            const soilIcon = soilIcons[data.soil_status] || "⚪";
+
+            // Climate status icon
+            const climateIcons = { "Ideal": "🟢", "Moderate": "🟡", "Unfavorable": "🔴" };
+            const climateIcon = climateIcons[data.climate_status] || "⚪";
+
+            // Score bar color
+            const scoreColor = data.overall_score >= 70 ? "var(--green)" :
+                data.overall_score >= 40 ? "var(--amber)" : "var(--red)";
+
             resultEl.innerHTML = `
-    <div class="results-dashboard">
+            <div class="results-dashboard">
 
-        <!-- 1 · Hero -->
-        <div class="fade-section">
-            <div class="hero-panel">
-                <div class="hero-left">
-                    ${lowConfHTML}
-                    <div class="hero-badge">🏆 Recommended Crop</div>
-                    <div class="hero-crop-name">${best.crop}</div>
-                    <div class="hero-meta">
-                        <div class="hero-stat-box">
-                            <div class="hero-stat-val">₹${best.profit.toLocaleString("en-IN")}</div>
-                            <div class="hero-stat-lbl">Est. Profit / Acre</div>
+                <!-- 1 · Hero -->
+                <div class="fade-section">
+                    <div class="hero-panel">
+                        <div class="hero-left">
+                            ${lowConfHTML}
+                            <div class="hero-badge">🏆 Recommended Crop</div>
+                            <div class="hero-crop-name">${best.crop}</div>
+                            <div class="hero-meta">
+                                <div class="hero-stat-box">
+                                    <div class="hero-stat-val">₹${best.profit.toLocaleString("en-IN")}</div>
+                                    <div class="hero-stat-lbl">Est. Profit / Acre</div>
+                                </div>
+                                <div class="hero-divider"></div>
+                                <div class="hero-stat-box">
+                                    <div class="hero-stat-val">${best.confidence}%</div>
+                                    <div class="hero-stat-lbl">AI Confidence</div>
+                                </div>
+                            </div>
+                            ${best.selection_note ? `<div class="hero-note-text">${best.selection_note}</div>` : ""}
                         </div>
-                        <div class="hero-divider"></div>
-                        <div class="hero-stat-box">
-                            <div class="hero-stat-val">${best.confidence}%</div>
-                            <div class="hero-stat-lbl">AI Confidence</div>
+                        <div class="conf-ring-wrap">
+                            <div class="conf-ring">
+                                <svg viewBox="0 0 88 88">
+                                    <circle class="ring-bg" cx="44" cy="44" r="36"/>
+                                    <circle class="ring-fill" cx="44" cy="44" r="36"
+                                        id="ringFill"
+                                        stroke-dasharray="226"
+                                        stroke-dashoffset="226"/>
+                                </svg>
+                                <div class="conf-ring-val">${best.confidence}%</div>
+                            </div>
+                            <div class="conf-ring-lbl">Confidence</div>
                         </div>
                     </div>
-                    ${best.selection_note ? `<div class="hero-note-text">${best.selection_note}</div>` : ""}
                 </div>
-                <div class="conf-ring-wrap">
-                    <div class="conf-ring">
-                        <svg viewBox="0 0 88 88">
-                            <circle class="ring-bg"   cx="44" cy="44" r="36"/>
-                            <circle class="ring-fill" cx="44" cy="44" r="36"
-                                id="ringFill"
-                                stroke-dasharray="226"
-                                stroke-dashoffset="226"/>
-                        </svg>
-                        <div class="conf-ring-val">${best.confidence}%</div>
+
+                <!-- 2 · Condition Summary + Badges + Score -->
+                <div class="fade-section">
+                    ${data.condition_summary ? `
+                    <div class="condition-block" style="margin-bottom:12px;">
+                        <div class="condition-text">${data.condition_summary}</div>
                     </div>
-                    <div class="conf-ring-lbl">Confidence</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2 · Warnings (conditional) -->
-        ${(data.warnings && data.warnings.length > 0) ? `
-        <div class="fade-section">
-            <div class="warnings-panel">
-                <div class="warn-header">⚠️ Condition Warnings</div>
-                <div class="warn-list">
-                    ${data.warnings.map(w => `
-                        <div class="warn-item">
-                            <span class="warn-dot"></span>
-                            <span>${w}</span>
+                    ` : ""}
+                    <div class="status-row">
+                        <div class="status-badge">${soilIcon} Soil: <strong style="margin-left:4px;">${data.soil_status || "N/A"}</strong></div>
+                        <div class="status-badge">${climateIcon} Climate: <strong style="margin-left:4px;">${data.climate_status || "N/A"}</strong></div>
+                        <div class="score-wrap">
+                            <div class="score-header">
+                                <span class="score-label">📊 Field Suitability Score</span>
+                                <span class="score-val">${data.overall_score ?? 0}/100</span>
+                            </div>
+                            <div class="score-bar-bg">
+                                <div class="score-bar-fill" id="scoreBar" data-target="${data.overall_score ?? 0}" style="background:${scoreColor};"></div>
+                            </div>
                         </div>
-                    `).join("")}
+                    </div>
                 </div>
-            </div>
-        </div>
-        ` : ""}
 
-        <!-- 3 · Insight Grid -->
-        <div class="fade-section">
-            <div class="insight-grid">
+                <!-- 3 · Warnings (conditional) -->
+                ${(data.warnings && data.warnings.length > 0) ? `
+                <div class="fade-section">
+                    <div class="warnings-panel">
+                        <div class="warn-header">⚠️ Condition Warnings</div>
+                        <div class="warn-list">
+                            ${data.warnings.map(w => `
+                                <div class="warn-item">
+                                    <span class="warn-dot"></span>
+                                    <span>${w}</span>
+                                </div>
+                            `).join("")}
+                        </div>
+                    </div>
+                </div>
+                ` : ""}
 
-                <!-- Why -->
-                <div class="dash-card">
-                    <div class="card-title">🔍 Why This Crop</div>
-                    ${data.summary ? `<div class="why-summary">${data.summary}</div>` : ""}
-                    <div class="reason-pills">
-                        ${(data.explanation || []).map(e => `
-                            <div class="reason-pill">
-                                <span class="pill-dot"></span>
-                                <span>${e.reason || "Conditions support this crop"}</span>
+                <!-- 4 · Insight Grid -->
+                <div class="fade-section">
+                    <div class="insight-grid">
+
+                        <!-- Why -->
+                        <div class="dash-card">
+                            <div class="card-title">🔍 Why This Crop</div>
+
+                            ${data.summary ? `<div class="why-summary">${data.summary}</div>` : ""}
+
+                            <div class="reason-pills">
+                                ${(function () {
+                    const explanations = (data.explanation && data.explanation.length > 0)
+                        ? data.explanation
+                        : [{ reason: "Detailed explanation not available for this prediction" }];
+
+                    return explanations.map(e => `
+                                        <div class="reason-pill">
+                                            <span class="pill-dot"></span>
+                                            <span>${e.reason}</span>
+                                        </div>
+                                    `).join("");
+                })()}
+                            </div>
+                        </div>
+
+                        <!-- Risk -->
+                        <div class="dash-card">
+                            <div class="card-title">⚠️ Risk &amp; Reliability</div>
+                            <div class="badges-row">
+                                <span class="badge ${riskStyle.cls}">${riskStyle.icon} ${data.risk} Risk</span>
+                                ${data.confidence_flag ? `<span class="badge ${flagCls}">${data.confidence_flag}</span>` : ""}
+                            </div>
+                            <div class="checklist">
+                                ${data.advice.map(a => `
+                                    <div class="check-item">
+                                        <span class="check-icon">✔</span>
+                                        <span>${a}</span>
+                                    </div>
+                                `).join("")}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 5 · Alternatives -->
+                ${alternatives.length > 0 ? `
+                <div class="fade-section">
+                    <div class="alt-header">🌾 Top Alternatives</div>
+                    <div class="alt-sub">Alternative crops with similar suitability</div>
+                    <div class="alt-row">
+                        ${alternatives.map((c, i) => `
+                            <div class="alt-card">
+                                <div class="alt-rank">#${i + 2}</div>
+                                <div class="alt-name">${c.crop}</div>
+                                <div class="alt-profit">₹${c.profit.toLocaleString("en-IN")} est.</div>
+                                <div class="bar-bg">
+                                    <div class="bar-fill" data-target="${c.confidence}"></div>
+                                </div>
+                                <div class="bar-label">${c.confidence}% confidence</div>
                             </div>
                         `).join("")}
                     </div>
                 </div>
-
-                <!-- Risk -->
-                <div class="dash-card">
-                    <div class="card-title">⚠️ Risk &amp; Reliability</div>
-                    <div class="badges-row">
-                        <span class="badge ${riskStyle.cls}">${riskStyle.icon} ${data.risk} Risk</span>
-                        ${data.confidence_flag ? `<span class="badge ${flagCls}">${data.confidence_flag}</span>` : ""}
-                    </div>
-                    <div class="checklist">
-                        ${data.advice.map(a => `
-                            <div class="check-item">
-                                <span class="check-icon">✔</span>
-                                <span>${a}</span>
-                            </div>
-                        `).join("")}
-                    </div>
-                </div>
+                ` : ""}
 
             </div>
-        </div>
-
-        <!-- 4 · Alternatives -->
-        ${alternatives.length > 0 ? `
-        <div class="fade-section">
-            <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:10px;">
-                🌾 Top Alternatives
-            </div>
-            <div class="alt-row">
-                ${alternatives.map((c, i) => `
-                    <div class="alt-card" data-conf="${c.confidence}">
-                        <div class="alt-rank">#${i + 2}</div>
-                        <div class="alt-name">${c.crop}</div>
-                        <div class="alt-profit">₹${c.profit.toLocaleString("en-IN")} est.</div>
-                        <div class="bar-bg">
-                            <div class="bar-fill" data-target="${c.confidence}"></div>
-                        </div>
-                        <div class="bar-label">${c.confidence}% confidence</div>
-                    </div>
-                `).join("")}
-            </div>
-        </div>
-        ` : ""}
-
-    </div>
-    `;
+            `;
 
             // Animate confidence ring
             requestAnimationFrame(() => {
@@ -1239,7 +1547,13 @@
                 if (ring) ring.style.strokeDashoffset = ringOffset;
             });
 
-            // Animate progress bars
+            // Animate score bar
+            requestAnimationFrame(() => {
+                const sb = document.getElementById("scoreBar");
+                if (sb) sb.style.width = sb.dataset.target + "%";
+            });
+
+            // Animate alternative bars
             document.querySelectorAll(".bar-fill").forEach(bar => {
                 const target = bar.dataset.target;
                 requestAnimationFrame(() => { bar.style.width = target + "%"; });

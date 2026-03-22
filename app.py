@@ -19,7 +19,7 @@ explainer = shap.TreeExplainer(model)
 # API Key
 API_KEY = os.getenv("WEATHER_API_KEY")
 if not API_KEY:
-    raise ValueError("API key not found. Set WEATHER_API_KEY in .env file")
+    print("⚠️ WARNING: WEATHER_API_KEY not set. Weather autofill disabled.")
 
 
 # Crop Data
@@ -135,7 +135,6 @@ def predict():
     # SHAP EXPLANATION (ROBUST)
     # -------------------------
     try:
-        shap_values = explainer(features)
 
         top_class_index = np.argmax(probabilities)
 
@@ -208,11 +207,7 @@ def predict():
         explanation = sorted(explanation, key=lambda x: abs(x["impact"]), reverse=True)
 
     except Exception as e:
-        explanation = [{
-            "feature": "Error",
-            "impact": 0,
-            "reason": "Unable to generate explanation"
-        }]
+        explanation = []
 
     # -------------------------
     # NATURAL LANGUAGE SUMMARY
@@ -317,6 +312,100 @@ def predict():
         confidence_flag = "High Reliability"
     # -------------------------
 
+    # -------------------------
+    # SOIL STATUS
+    # -------------------------
+    npk_avg = (n + p + k) / 3
+    soil_score = 0
+
+    # NPK component (0-50)
+    if npk_avg >= 60:
+        soil_score += 50
+    elif npk_avg >= 30:
+        soil_score += 30
+    else:
+        soil_score += 10
+
+    # pH component (0-50): ideal = 5.5-7.5
+    if 5.5 <= ph <= 7.5:
+        soil_score += 50
+    elif 4.5 <= ph <= 8.5:
+        soil_score += 30
+    else:
+        soil_score += 10
+
+    if soil_score >= 80:
+        soil_status = "Healthy"
+    elif soil_score >= 50:
+        soil_status = "Moderate"
+    else:
+        soil_status = "Poor"
+
+    # -------------------------
+    # CLIMATE STATUS
+    # -------------------------
+    climate_score = 0
+
+    # Temperature (0-35): ideal = 15-35
+    if 15 <= temp <= 35:
+        climate_score += 35
+    elif 5 <= temp <= 45:
+        climate_score += 20
+    else:
+        climate_score += 5
+
+    # Humidity (0-35): ideal = 40-80
+    if 40 <= humidity <= 80:
+        climate_score += 35
+    elif 20 <= humidity <= 95:
+        climate_score += 20
+    else:
+        climate_score += 5
+
+    # Rainfall (0-30): ideal = 50-250
+    if 50 <= rainfall <= 250:
+        climate_score += 30
+    elif 20 <= rainfall <= 400:
+        climate_score += 18
+    else:
+        climate_score += 5
+
+    if climate_score >= 80:
+        climate_status = "Ideal"
+    elif climate_score >= 50:
+        climate_status = "Moderate"
+    else:
+        climate_status = "Unfavorable"
+
+    # -------------------------
+    # OVERALL SCORE (0-100)
+    # -------------------------
+    warning_penalty = min(real_warning_count * 8, 30)
+    overall_score = round(
+        top_conf * 0.40 +
+        soil_score * 0.30 +
+        climate_score * 0.20 -
+        warning_penalty
+    )
+    overall_score = max(0, min(100, overall_score))
+
+    # -------------------------
+    # CONDITION SUMMARY
+    # -------------------------
+    soil_adj = {"Healthy": "healthy", "Moderate": "moderate", "Poor": "poor"}
+    climate_adj = {"Ideal": "ideal", "Moderate": "moderate", "Unfavorable": "unfavorable"}
+
+    condition_summary = (
+        f"Soil health is {soil_adj[soil_status]} and climate conditions are {climate_adj[climate_status]} for farming."
+    )
+    if overall_score >= 70:
+        condition_summary += " Overall, conditions are favorable for crop cultivation."
+    elif overall_score >= 40:
+        condition_summary += " Some adjustments may improve yield potential."
+    else:
+        condition_summary += " Significant improvements are needed for reliable crop production."
+    # -------------------------
+
     # Best crop decision
     best_crop = max(
         results,
@@ -388,7 +477,11 @@ def predict():
         "explanation": explanation[:5],
         "summary": summary,
         "warnings": warnings,
-        "confidence_flag": confidence_flag
+        "confidence_flag": confidence_flag,
+        "soil_status": soil_status,
+        "climate_status": climate_status,
+        "overall_score": overall_score,
+        "condition_summary": condition_summary
     })
 
 
