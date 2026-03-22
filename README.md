@@ -41,11 +41,14 @@ An AI-powered web application that recommends the most suitable crop based on so
 
 ## Demo
 
-### Input
-<img src="screenshots/input.png" width="600"/>
+### Dashboard
+![Dashboard](./assets/dashboard.png)
 
-### Output
-<img src="screenshots/output.png" width="600"/>
+### Input Form
+![Input](./assets/input.png)
+
+### Risk & Analysis
+![Analysis](./assets/analysis.png)
 
 ---
 
