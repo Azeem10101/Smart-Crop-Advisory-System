@@ -69,6 +69,47 @@ def predict():
     # Feature unpacking
     n, p, k, temp, humidity, ph, rainfall = features[0]
 
+    # -------------------------
+    # INPUT SANITY CHECKS
+    # -------------------------
+    warnings = []
+
+    # Temperature
+    if temp > 45:
+        warnings.append("Temperature is too high for most crops")
+    elif temp < 5:
+        warnings.append("Temperature is too low — frost risk for most crops")
+
+    # pH
+    if ph < 4.5:
+        warnings.append("Soil pH is critically acidic — unsuitable for most crops")
+    elif ph > 9.0:
+        warnings.append("Soil pH is too alkaline — outside optimal farming range")
+    elif ph < 5.5 or ph > 8.0:
+        warnings.append("Soil pH is outside the optimal farming range (5.5–8.0)")
+
+    # Rainfall
+    if rainfall > 500:
+        warnings.append("Rainfall is extremely high — high risk of waterlogging or flooding")
+    elif rainfall > 300:
+        warnings.append("Rainfall is high — ensure good drainage")
+
+    # Humidity
+    if humidity > 95:
+        warnings.append("Humidity is extremely high — risk of fungal diseases")
+    elif humidity < 10:
+        warnings.append("Humidity is extremely low — severe drought risk")
+
+    # Nitrogen
+    if n > 130:
+        warnings.append("Nitrogen level is very high — risk of over-fertilisation")
+
+    # Extreme combination check
+    if len(warnings) >= 3:
+        warnings.insert(0, "Current conditions may not be suitable for reliable crop recommendations")
+
+    # -------------------------
+
     # Advice system
     advice = []
 
@@ -174,6 +215,66 @@ def predict():
         }]
 
     # -------------------------
+    # NATURAL LANGUAGE SUMMARY
+    # -------------------------
+    def build_summary(explanation_list, crop_name):
+        """Compose 1-2 advisor-style sentences from SHAP explanation."""
+
+        FRIENDLY_NAMES = {
+            "N": "nitrogen levels",
+            "P": "phosphorus levels",
+            "K": "potassium levels",
+            "Temperature": "temperature",
+            "Humidity": "humidity",
+            "pH": "soil pH",
+            "Rainfall": "rainfall"
+        }
+
+        positives = [e for e in explanation_list if e["impact"] > 0]
+        negatives = [e for e in explanation_list if e["impact"] < 0]
+
+        # Take top 2 positive, top 1 negative (already sorted by |impact|)
+        top_pos = positives[:2]
+        top_neg = negatives[:1]
+
+        parts = []
+
+        # Positive sentence
+        if len(top_pos) >= 2:
+            a = FRIENDLY_NAMES.get(top_pos[0]["feature"], top_pos[0]["feature"])
+            b = FRIENDLY_NAMES.get(top_pos[1]["feature"], top_pos[1]["feature"])
+            if a == b:
+                parts.append(
+                    f"{a.capitalize()} creates favorable conditions for {crop_name}, supporting healthy growth."
+                )
+            else:
+                parts.append(
+                    f"{a.capitalize()} and {b} create favorable conditions for {crop_name}, supporting healthy growth."
+                )
+        elif len(top_pos) == 1:
+            a = FRIENDLY_NAMES.get(top_pos[0]["feature"], top_pos[0]["feature"])
+            parts.append(
+                f"{a.capitalize()} is well-suited for growing {crop_name}."
+            )
+        else:
+            parts.append(
+                f"Current conditions are acceptable for {crop_name}, though no single factor strongly favors it."
+            )
+
+        # Negative sentence
+        if top_neg:
+            n = FRIENDLY_NAMES.get(top_neg[0]["feature"], top_neg[0]["feature"])
+            parts.append(
+                f"However, improving {n} could further increase yield potential."
+            )
+
+        return " ".join(parts)
+
+    # -------------------------
+
+    # Build summary from top crop's explanation
+    top_crop_name = model.classes_[np.argmax(probabilities)]
+    summary = build_summary(explanation, top_crop_name)
 
     # Top 3 crops
     top_indices = probabilities.argsort()[-3:][::-1]
@@ -202,6 +303,20 @@ def predict():
     else:
         risk = "Low"
 
+    # -------------------------
+    # CONFIDENCE FLAG
+    # -------------------------
+    # Count only the real warning messages (exclude the summary line added at index 0)
+    real_warning_count = sum(1 for w in warnings if "may not be suitable" not in w)
+
+    if top_conf < 40 or real_warning_count >= 2:
+        confidence_flag = "Low Reliability"
+    elif top_conf < 70 or real_warning_count == 1:
+        confidence_flag = "Moderate Reliability"
+    else:
+        confidence_flag = "High Reliability"
+    # -------------------------
+
     # Best crop decision
     best_crop = max(
         results,
@@ -221,11 +336,48 @@ def predict():
     if not reasons:
         reasons.append("Balanced choice based on conditions")
 
+    # Build a short selection note comparing best vs second-best
+    def build_decision_reason(best, all_results):
+        """1-2 sentences explaining why best was chosen over the runner-up."""
+        others = [r for r in all_results if r["crop"] != best["crop"]]
+        if not others:
+            return f"{best['crop']} is the top recommendation based on current conditions."
+
+        runner = sorted(
+            [r for r in all_results if r["crop"] != best["crop"]],
+            key=lambda x: (x["profit"] * 0.7 + x["confidence"] * 1000 * 0.3),
+            reverse=True
+        )[0]
+        parts = []
+
+        # Lead: profit or confidence edge
+        if best["profit"] > runner["profit"] and best["confidence"] > runner["confidence"]:
+            parts.append(
+                f"{best['crop']} was selected over {runner['crop']} for both higher profit potential and stronger model confidence."
+            )
+        elif best["profit"] > runner["profit"]:
+            parts.append(
+                f"{best['crop']} was selected over {runner['crop']} for its higher estimated profit."
+            )
+        elif best["confidence"] > runner["confidence"]:
+            parts.append(
+                f"{best['crop']} was selected over {runner['crop']} due to stronger suitability for the current conditions."
+            )
+        else:
+            parts.append(
+                f"{best['crop']} offers the best overall balance of profit and suitability compared to {runner['crop']}."
+            )
+
+        return " ".join(parts)
+
+    selection_note = build_decision_reason(best_crop, results)
+
     decision = {
         "crop": best_crop["crop"],
         "profit": best_crop["profit"],
         "confidence": best_crop["confidence"],
-        "reason": reasons
+        "reason": reasons,
+        "selection_note": selection_note
     }
 
     return jsonify({
@@ -233,7 +385,10 @@ def predict():
         "risk": risk,
         "best_crop": decision,
         "advice": advice,
-        "explanation": explanation[:5]
+        "explanation": explanation[:5],
+        "summary": summary,
+        "warnings": warnings,
+        "confidence_flag": confidence_flag
     })
 
 

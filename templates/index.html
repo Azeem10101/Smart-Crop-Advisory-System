@@ -1,223 +1,1252 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Crop Advisory System</title>
+    <meta name="description" content="AI-powered crop recommendation based on soil and climate conditions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body {
+        /* ─── Design Tokens ─────────────────────────────────────── */
+        :root {
+            --bg: #080f1a;
+            --surface: #0d1626;
+            --elevated: #111f35;
+            --card: #132033;
+            --card-alt: #0f1c2e;
+            --border: rgba(99, 179, 237, 0.1);
+            --border-hover: rgba(99, 179, 237, 0.22);
+            --glow-green: rgba(34, 197, 94, 0.18);
+            --glow-blue: rgba(59, 130, 246, 0.15);
+
+            --green: #22c55e;
+            --green-dark: #16a34a;
+            --green-muted: rgba(34, 197, 94, 0.15);
+            --blue: #3b82f6;
+            --blue-muted: rgba(59, 130, 246, 0.15);
+            --amber: #f59e0b;
+            --amber-muted: rgba(245, 158, 11, 0.12);
+            --red: #ef4444;
+            --red-muted: rgba(239, 68, 68, 0.12);
+
+            --text: #e2e8f0;
+            --text-2: #94a3b8;
+            --text-3: #64748b;
+            --text-4: #3d5166;
+
+            --r-sm: 8px;
+            --r-md: 12px;
+            --r-lg: 16px;
+            --r-xl: 20px;
+
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.45);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+            --transition: 0.22s ease;
+        }
+
+        /* ─── Reset ─────────────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: white;
+            padding: 0;
         }
 
-        h1 {
-            text-align: center;
-            margin-top: 30px;
+        html,
+        body {
+            height: 100%;
         }
 
-        .subtitle {
-            text-align: center;
-            color: #cbd5f5;
-            margin-bottom: 30px;
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        .container {
+        /* ─── Dashboard Shell ────────────────────────────────────── */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            min-height: 100vh;
+        }
+
+        /* ─── Sidebar ────────────────────────────────────────────── */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
             display: flex;
-            justify-content: center;
-            gap: 40px;
-            padding: 50px;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--elevated) transparent;
         }
 
-        .card {
-            background: rgba(255,255,255,0.05);
-            padding: 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
         }
 
-        .form-card {
-            width: 320px;
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--elevated);
+            border-radius: 2px;
         }
 
-        input {
+        .brand {
+            padding: 28px 28px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-logo {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-logo .leaf {
+            font-size: 1.1rem;
+        }
+
+        .brand-tagline {
+            font-size: 0.75rem;
+            color: var(--text-3);
+            margin-top: 4px;
+            letter-spacing: 0.2px;
+        }
+
+        /* ─── Form ───────────────────────────────────────────────── */
+        .form-body {
+            padding: 20px 28px;
+            flex: 1;
+        }
+
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            color: var(--text-3);
+            margin-bottom: 12px;
+        }
+
+        .group-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .field {
+            margin-bottom: 10px;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-2);
+            margin-bottom: 5px;
+        }
+
+        .field input {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 10px;
-            border: none;
+            padding: 10px 13px;
+            background: var(--elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.875rem;
             outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
         }
 
-        button {
+        .field input::placeholder {
+            color: var(--text-4);
+            font-size: 0.82rem;
+        }
+
+        .field input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .field input.input-error {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+        }
+
+        .field-error {
+            display: none;
+            font-size: 0.72rem;
+            color: var(--red);
+            margin-top: 4px;
+        }
+
+        .field-error.visible {
+            display: block;
+        }
+
+        .city-hint {
+            font-size: 0.7rem;
+            color: var(--text-4);
+            margin-top: 4px;
+        }
+
+        .grid-2-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .grid-2-form .field {
+            margin-bottom: 0;
+        }
+
+        /* ─── Analyze Button ─────────────────────────────────────── */
+        .form-footer {
+            padding: 20px 28px 28px;
+        }
+
+        .btn-analyze {
             width: 100%;
-            padding: 12px;
-            background: #22c55e;
+            padding: 14px;
+            background: var(--green);
             border: none;
-            border-radius: 10px;
-            color: white;
+            border-radius: var(--r-md);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
+            letter-spacing: 0.2px;
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+            box-shadow: 0 2px 12px rgba(34, 197, 94, 0.25);
+            position: relative;
+            overflow: hidden;
         }
 
-        button:disabled {
-            background: gray;
+        .btn-analyze::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0);
+            transition: background var(--transition);
         }
 
-        button:hover {
-            transform: scale(1.05);
+        .btn-analyze:hover {
+            background: var(--green-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35);
         }
 
-        .results {
-            width: 400px;
+        .btn-analyze:active {
+            transform: scale(0.98);
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+        .btn-analyze:disabled {
+            background: var(--text-4);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
-        @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(10px);}
-            to {opacity: 1; transform: translateY(0);}
+        /* ─── Main Panel ─────────────────────────────────────────── */
+        .main-panel {
+            padding: 36px 36px 56px;
+            background: var(--bg);
+            overflow-y: auto;
         }
 
-        .result-card {
-            transition: 0.3s;
+        /* ─── Placeholder ────────────────────────────────────────── */
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+            gap: 14px;
         }
 
-        .result-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255,255,255,0.08);
+        .placeholder-icon {
+            width: 72px;
+            height: 72px;
+            background: var(--elevated);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 1px solid var(--border);
         }
 
+        .placeholder h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-2);
+        }
+
+        .placeholder p {
+            font-size: 0.85rem;
+            color: var(--text-3);
+            max-width: 280px;
+            line-height: 1.6;
+        }
+
+        /* ─── Loading State ──────────────────────────────────────── */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.06);
+            border-top-color: var(--green);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-state .load-text {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-2);
+        }
+
+        .loading-state .load-sub {
+            font-size: 0.78rem;
+            color: var(--text-3);
+            margin-top: -8px;
+        }
+
+        /* ─── Error Banner ───────────────────────────────────────── */
+        .error-banner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            gap: 12px;
+            text-align: center;
+            color: var(--red);
+            padding: 40px;
+            background: var(--red-muted);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--r-xl);
+        }
+
+        .error-banner .ei {
+            font-size: 2.2rem;
+        }
+
+        .error-banner .et {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .error-banner .es {
+            font-size: 0.82rem;
+            color: var(--text-3);
+            max-width: 300px;
+        }
+
+        /* ─── Dashboard Results ──────────────────────────────────── */
+        .results-dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Staggered fade-in */
+        .fade-section {
+            animation: fadeUp 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        .fade-section:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .fade-section:nth-child(2) {
+            animation-delay: 0.08s;
+        }
+
+        .fade-section:nth-child(3) {
+            animation-delay: 0.16s;
+        }
+
+        .fade-section:nth-child(4) {
+            animation-delay: 0.24s;
+        }
+
+        .fade-section:nth-child(5) {
+            animation-delay: 0.32s;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ─── Hero Panel ─────────────────────────────────────────── */
+        .hero-panel {
+            background: linear-gradient(135deg, #052819 0%, #0a3d22 55%, #0b4f2a 100%);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: var(--r-xl);
+            padding: 28px;
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.06);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4ade80;
+            margin-bottom: 10px;
+        }
+
+        .hero-crop-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 10px;
+        }
+
+        .hero-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-stat-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .hero-stat-lbl {
+            font-size: 0.7rem;
+            color: #6ee7a0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-divider {
+            width: 1px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .hero-note-text {
+            margin-top: 14px;
+            font-size: 0.8rem;
+            color: #86efac;
+            font-style: italic;
+            line-height: 1.5;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            padding-top: 12px;
+        }
+
+        .hero-low-conf {
+            font-size: 0.78rem;
+            color: #fbbf24;
+            margin-bottom: 8px;
+        }
+
+        /* ─── Circular Confidence Ring ───────────────────────────── */
+        .conf-ring-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .conf-ring {
+            position: relative;
+            width: 88px;
+            height: 88px;
+        }
+
+        .conf-ring svg {
+            width: 88px;
+            height: 88px;
+            transform: rotate(-90deg);
+        }
+
+        .conf-ring svg circle {
+            fill: none;
+            stroke-width: 7;
+            stroke-linecap: round;
+        }
+
+        .ring-bg {
+            stroke: rgba(255, 255, 255, 0.07);
+        }
+
+        .ring-fill {
+            stroke: #22c55e;
+            stroke-dasharray: 226;
+            /* 2π × 36 ≈ 226 */
+            stroke-dashoffset: 226;
+            /* start hidden, animated via JS */
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .conf-ring-val {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .conf-ring-lbl {
+            font-size: 0.68rem;
+            color: #6ee7a0;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        /* ─── Warnings Banner ────────────────────────────────────── */
+        .warnings-panel {
+            background: var(--amber-muted);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: var(--r-lg);
+            padding: 16px 20px;
+            animation: slideIn 0.35s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .warn-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--amber);
+            margin-bottom: 10px;
+        }
+
+        .warn-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .warn-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: #fde68a;
+            line-height: 1.5;
+        }
+
+        .warn-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--amber);
+            flex-shrink: 0;
+            margin-top: 8px;
+        }
+
+        /* ─── Insight Grid ───────────────────────────────────────── */
+        .insight-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* ─── Card base ──────────────────────────────────────────── */
+        .dash-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 22px;
+            transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+        }
+
+        .dash-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-3);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        /* ─── Why Card ───────────────────────────────────────────── */
+        .why-summary {
+            font-size: 0.85rem;
+            color: #86efac;
+            line-height: 1.6;
+            margin-bottom: 14px;
+            padding-bottom: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-style: italic;
+        }
+
+        .reason-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .reason-pill {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--r-sm);
+            padding: 9px 12px;
+            font-size: 0.8rem;
+            color: var(--text-2);
+            line-height: 1.45;
+            transition: background var(--transition);
+        }
+
+        .reason-pill:hover {
+            background: rgba(255, 255, 255, 0.055);
+        }
+
+        .pill-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--blue);
+            flex-shrink: 0;
+            margin-top: 7px;
+        }
+
+        /* ─── Risk Card ──────────────────────────────────────────── */
+        .badges-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: var(--green-muted);
+            color: #4ade80;
+        }
+
+        .badge-amber {
+            background: var(--amber-muted);
+            color: #fbbf24;
+        }
+
+        .badge-red {
+            background: var(--red-muted);
+            color: #f87171;
+        }
+
+        .badge-blue {
+            background: var(--blue-muted);
+            color: #7dd3fc;
+        }
+
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            font-size: 0.8rem;
+            color: var(--text-2);
+            line-height: 1.45;
+        }
+
+        .check-icon {
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+            color: var(--green);
+        }
+
+        /* ─── Alternatives ───────────────────────────────────────── */
+        .alt-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .alt-card {
+            background: var(--card-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 18px;
+            transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+            cursor: default;
+        }
+
+        .alt-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: var(--shadow-md);
+        }
+
+        .alt-rank {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-4);
+            margin-bottom: 4px;
+        }
+
+        .alt-name {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .alt-profit {
+            font-size: 0.75rem;
+            color: var(--text-3);
+            margin-bottom: 12px;
+        }
+
+        .bar-bg {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--green);
+            width: 0;
+            transition: width 0.8s ease;
+        }
+
+        .bar-label {
+            font-size: 0.7rem;
+            color: var(--text-3);
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        /* ─── Responsive ─────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .main-panel {
+                padding: 24px 20px 48px;
+            }
+
+            .insight-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .conf-ring-wrap {
+                flex-direction: row;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .hero-crop-name {
+                font-size: 1.7rem;
+            }
+
+            .alt-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <div class="dashboard">
 
-<h1>🌱 Smart Crop Advisory System</h1>
-<p class="subtitle">AI-powered crop recommendation based on soil & climate</p>
+        <!-- ─── Sidebar ─────────────────────────────────────────────── -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"><span class="leaf">🌱</span> CropAdvisor</div>
+                <div class="brand-tagline">AI-powered agricultural decision system</div>
+            </div>
 
-<div class="container">
+            <div class="form-body">
 
-    <!-- INPUT -->
-    <div class="card form-card">
-        <input id="city" placeholder="Enter City">
-        <input id="n" type="number" placeholder="Nitrogen">
-        <input id="p" type="number" placeholder="Phosphorus">
-        <input id="k" type="number" placeholder="Potassium">
-        <input id="t" type="number" placeholder="Temperature">
-        <input id="h" type="number" placeholder="Humidity">
-        <input id="ph" type="number" placeholder="pH Value">
-        <input id="r" type="number" placeholder="Rainfall">
-
-        <button id="predictBtn">Predict</button>
-    </div>
-
-    <!-- OUTPUT -->
-    <div class="card results" id="result">
-        Results will appear here...
-    </div>
-
-</div>
-
-<script>
-
-document.getElementById("predictBtn").addEventListener("click", predict);
-
-document.getElementById("city").addEventListener("change", async function(){
-    let res = await fetch("/get_weather", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({city: this.value})
-    });
-
-    let data = await res.json();
-
-    if (!data.error) {
-        t.value = data.temperature;
-        h.value = data.humidity;
-    }
-});
-
-async function predict() {
-
-    let btn = document.getElementById("predictBtn");
-    btn.innerText = "Analyzing...";
-    btn.disabled = true;
-
-    let features = [
-        Number(n.value),
-        Number(p.value),
-        Number(k.value),
-        Number(t.value),
-        Number(h.value),
-        Number(ph.value),
-        Number(r.value)
-    ];
-
-    let res = await fetch("/predict", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({features})
-    });
-
-    let data = await res.json();
-
-    btn.innerText = "Predict";
-    btn.disabled = false;
-
-    let best = data.best_crop;
-    let top3 = data.top_crops;
-
-    //  NEW: Explanation section
-    let explanationHTML = `
-        <div style="margin-top:15px;padding:15px;border-radius:10px;background:#1e293b;">
-            <b>🔍 Why this crop?</b><br><br>
-            ${data.explanation.map(e => `• ${e.reason || "No explanation available"}`).join("<br>")}
-        </div>
-    `;
-
-    let html = `
-    <div class="fade-in">
-
-        <!-- BEST -->
-        <div style="background:#14532d;padding:20px;border-radius:15px;margin-bottom:20px;">
-            <h3>🏆 ${best.crop}</h3>
-            <p>💰 ₹${best.profit}</p>
-            <p>📊 ${best.confidence}%</p>
-
-            <p><b>Why?</b><br>${best.reason.join("<br>")}</p>
-
-            <p><b>Advice:</b><br>${data.advice.map(a=>"✔ "+a).join("<br>")}</p>
-
-            ${explanationHTML}
-        </div>
-
-        <!-- TOP -->
-        ${top3.map((c,i)=>`
-            <div class="result-card" style="padding:15px;border-radius:10px;margin-bottom:10px;background:rgba(255,255,255,0.05);">
-                <b>${i+1}. ${c.crop}</b><br>
-                ₹${c.profit}
-
-                <div style="background:#1e293b;border-radius:5px;margin-top:5px;">
-                    <div style="width:${c.confidence}%;background:#22c55e;padding:5px;font-size:12px;">
-                        ${c.confidence}%
+                <!-- Location -->
+                <div class="field-group">
+                    <div class="group-header">📍 Location</div>
+                    <div class="field">
+                        <label for="city">City Name</label>
+                        <input id="city" type="text" placeholder="e.g. Mumbai">
+                        <div class="city-hint">↑ Auto-fills temperature &amp; humidity</div>
                     </div>
                 </div>
-            </div>
-        `).join("")}
 
-        <p>⚠️ Risk: ${data.risk}</p>
+                <!-- Soil Nutrients -->
+                <div class="field-group">
+                    <div class="group-header">🧪 Soil Nutrients</div>
+                    <div class="grid-2-form">
+                        <div class="field">
+                            <label for="n">Nitrogen (N)</label>
+                            <input id="n" type="number" placeholder="0–140">
+                            <span class="field-error" id="err-n"></span>
+                        </div>
+                        <div class="field">
+                            <label for="p">Phosphorus (P)</label>
+                            <input id="p" type="number" placeholder="0–145">
+                            <span class="field-error" id="err-p"></span>
+                        </div>
+                        <div class="field">
+                            <label for="k">Potassium (K)</label>
+                            <input id="k" type="number" placeholder="0–205">
+                            <span class="field-error" id="err-k"></span>
+                        </div>
+                        <div class="field">
+                            <label for="ph">pH Value</label>
+                            <input id="ph" type="number" step="0.1" placeholder="3.5–9.9">
+                            <span class="field-error" id="err-ph"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Climate -->
+                <div class="field-group">
+                    <div class="group-header">🌤️ Climate</div>
+                    <div class="grid-2-form">
+                        <div class="field">
+                            <label for="t">Temperature (°C)</label>
+                            <input id="t" type="number" step="0.1" placeholder="Auto / Manual">
+                            <span class="field-error" id="err-t"></span>
+                        </div>
+                        <div class="field">
+                            <label for="h">Humidity (%)</label>
+                            <input id="h" type="number" step="0.1" placeholder="Auto / Manual">
+                            <span class="field-error" id="err-h"></span>
+                        </div>
+                    </div>
+                    <div class="field" style="margin-top:10px;">
+                        <label for="r">Rainfall (mm)</label>
+                        <input id="r" type="number" step="0.1" placeholder="0–1000">
+                        <span class="field-error" id="err-r"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-footer">
+                <button id="predictBtn" class="btn-analyze">Analyze Crop</button>
+            </div>
+        </aside>
+
+        <!-- ─── Main Panel ───────────────────────────────────────────── -->
+        <main class="main-panel" id="result">
+            <div class="placeholder">
+                <div class="placeholder-icon">📊</div>
+                <h2>No Analysis Yet</h2>
+                <p>Enter your soil and climate parameters on the left, then click <strong>Analyze Crop</strong>.</p>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ─── Scripts ─────────────────────────────────────────────────── -->
+    <script>
+
+        document.getElementById("predictBtn").addEventListener("click", predict);
+
+        // Auto-fill weather from city
+        document.getElementById("city").addEventListener("change", async function () {
+            const res = await fetch("/get_weather", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ city: this.value })
+            });
+            const data = await res.json();
+            if (!data.error) {
+                document.getElementById("t").value = data.temperature;
+                document.getElementById("h").value = data.humidity;
+            }
+        });
+
+        // ── Validation ───────────────────────────────────────────────────
+        const FIELD_RULES = [
+            { id: "n", errId: "err-n", label: "Nitrogen", min: 0, max: 140 },
+            { id: "p", errId: "err-p", label: "Phosphorus", min: 0, max: 145 },
+            { id: "k", errId: "err-k", label: "Potassium", min: 0, max: 205 },
+            { id: "t", errId: "err-t", label: "Temperature", min: -10, max: 60 },
+            { id: "h", errId: "err-h", label: "Humidity", min: 0, max: 100 },
+            { id: "ph", errId: "err-ph", label: "pH", min: 0, max: 14 },
+            { id: "r", errId: "err-r", label: "Rainfall", min: 0, max: 1000 }
+        ];
+
+        function clearErrors() {
+            FIELD_RULES.forEach(rule => {
+                document.getElementById(rule.id).classList.remove("input-error");
+                const el = document.getElementById(rule.errId);
+                el.textContent = "";
+                el.classList.remove("visible");
+            });
+        }
+
+        function showFieldError(rule, msg) {
+            document.getElementById(rule.id).classList.add("input-error");
+            const el = document.getElementById(rule.errId);
+            el.textContent = msg;
+            el.classList.add("visible");
+        }
+
+        function validate() {
+            clearErrors();
+            let ok = true;
+            FIELD_RULES.forEach(rule => {
+                const raw = document.getElementById(rule.id).value.trim();
+                if (raw === "") { showFieldError(rule, `${rule.label} is required`); ok = false; return; }
+                const val = Number(raw);
+                if (isNaN(val)) { showFieldError(rule, `${rule.label} must be a number`); ok = false; return; }
+                if (val < rule.min || val > rule.max) { showFieldError(rule, `${rule.label}: ${rule.min}–${rule.max}`); ok = false; }
+            });
+            return ok;
+        }
+
+        FIELD_RULES.forEach(rule => {
+            document.getElementById(rule.id).addEventListener("input", () => {
+                document.getElementById(rule.id).classList.remove("input-error");
+                const el = document.getElementById(rule.errId);
+                el.textContent = "";
+                el.classList.remove("visible");
+            });
+        });
+
+        // ── Predict ──────────────────────────────────────────────────────
+        async function predict() {
+            if (!validate()) return;
+
+            const btn = document.getElementById("predictBtn");
+            const resultEl = document.getElementById("result");
+
+            btn.innerText = "Analyzing…";
+            btn.disabled = true;
+
+            resultEl.innerHTML = `
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <div class="load-text">Analyzing soil and climate conditions…</div>
+            <div class="load-sub">Running AI model, please wait</div>
+        </div>
+    `;
+
+            const features = FIELD_RULES.map(r => Number(document.getElementById(r.id).value));
+
+            let data;
+            try {
+                const res = await fetch("/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ features })
+                });
+                if (!res.ok) throw new Error(`Server error ${res.status}`);
+                data = await res.json();
+                if (data.error) throw new Error(data.error);
+            } catch (err) {
+                btn.innerText = "Analyze Crop";
+                btn.disabled = false;
+                resultEl.innerHTML = `
+            <div class="error-banner">
+                <div class="ei">⚠️</div>
+                <div class="et">Could not get a recommendation</div>
+                <div class="es">${err.message || "An unexpected error occurred. Please try again."}</div>
+            </div>
+        `;
+                return;
+            }
+
+            btn.innerText = "Analyze Crop";
+            btn.disabled = false;
+
+            const best = data.best_crop;
+            const top3 = data.top_crops;
+            const alternatives = top3.slice(1);
+
+            // Risk badge
+            const riskMap = {
+                "Low": { cls: "badge-green", icon: "🟢" },
+                "Medium": { cls: "badge-amber", icon: "🟡" },
+                "High": { cls: "badge-red", icon: "🔴" }
+            };
+            const riskStyle = riskMap[data.risk] || riskMap["Medium"];
+
+            // Confidence flag badge
+            const flagMap = {
+                "High Reliability": "badge-green",
+                "Moderate Reliability": "badge-amber",
+                "Low Reliability": "badge-red"
+            };
+            const flagCls = flagMap[data.confidence_flag] || "badge-amber";
+
+            // Circular ring: dashoffset = 226 - (conf/100)*226
+            const ringOffset = Math.round(226 - (best.confidence / 100) * 226);
+
+            // Low confidence inline warning
+            const lowConfHTML = best.confidence < 40
+                ? `<div class="hero-low-conf">⚠️ Low confidence — results may not be reliable</div>`
+                : "";
+
+            resultEl.innerHTML = `
+    <div class="results-dashboard">
+
+        <!-- 1 · Hero -->
+        <div class="fade-section">
+            <div class="hero-panel">
+                <div class="hero-left">
+                    ${lowConfHTML}
+                    <div class="hero-badge">🏆 Recommended Crop</div>
+                    <div class="hero-crop-name">${best.crop}</div>
+                    <div class="hero-meta">
+                        <div class="hero-stat-box">
+                            <div class="hero-stat-val">₹${best.profit.toLocaleString("en-IN")}</div>
+                            <div class="hero-stat-lbl">Est. Profit / Acre</div>
+                        </div>
+                        <div class="hero-divider"></div>
+                        <div class="hero-stat-box">
+                            <div class="hero-stat-val">${best.confidence}%</div>
+                            <div class="hero-stat-lbl">AI Confidence</div>
+                        </div>
+                    </div>
+                    ${best.selection_note ? `<div class="hero-note-text">${best.selection_note}</div>` : ""}
+                </div>
+                <div class="conf-ring-wrap">
+                    <div class="conf-ring">
+                        <svg viewBox="0 0 88 88">
+                            <circle class="ring-bg"   cx="44" cy="44" r="36"/>
+                            <circle class="ring-fill" cx="44" cy="44" r="36"
+                                id="ringFill"
+                                stroke-dasharray="226"
+                                stroke-dashoffset="226"/>
+                        </svg>
+                        <div class="conf-ring-val">${best.confidence}%</div>
+                    </div>
+                    <div class="conf-ring-lbl">Confidence</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 · Warnings (conditional) -->
+        ${(data.warnings && data.warnings.length > 0) ? `
+        <div class="fade-section">
+            <div class="warnings-panel">
+                <div class="warn-header">⚠️ Condition Warnings</div>
+                <div class="warn-list">
+                    ${data.warnings.map(w => `
+                        <div class="warn-item">
+                            <span class="warn-dot"></span>
+                            <span>${w}</span>
+                        </div>
+                    `).join("")}
+                </div>
+            </div>
+        </div>
+        ` : ""}
+
+        <!-- 3 · Insight Grid -->
+        <div class="fade-section">
+            <div class="insight-grid">
+
+                <!-- Why -->
+                <div class="dash-card">
+                    <div class="card-title">🔍 Why This Crop</div>
+                    ${data.summary ? `<div class="why-summary">${data.summary}</div>` : ""}
+                    <div class="reason-pills">
+                        ${(data.explanation || []).map(e => `
+                            <div class="reason-pill">
+                                <span class="pill-dot"></span>
+                                <span>${e.reason || "Conditions support this crop"}</span>
+                            </div>
+                        `).join("")}
+                    </div>
+                </div>
+
+                <!-- Risk -->
+                <div class="dash-card">
+                    <div class="card-title">⚠️ Risk &amp; Reliability</div>
+                    <div class="badges-row">
+                        <span class="badge ${riskStyle.cls}">${riskStyle.icon} ${data.risk} Risk</span>
+                        ${data.confidence_flag ? `<span class="badge ${flagCls}">${data.confidence_flag}</span>` : ""}
+                    </div>
+                    <div class="checklist">
+                        ${data.advice.map(a => `
+                            <div class="check-item">
+                                <span class="check-icon">✔</span>
+                                <span>${a}</span>
+                            </div>
+                        `).join("")}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 4 · Alternatives -->
+        ${alternatives.length > 0 ? `
+        <div class="fade-section">
+            <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:10px;">
+                🌾 Top Alternatives
+            </div>
+            <div class="alt-row">
+                ${alternatives.map((c, i) => `
+                    <div class="alt-card" data-conf="${c.confidence}">
+                        <div class="alt-rank">#${i + 2}</div>
+                        <div class="alt-name">${c.crop}</div>
+                        <div class="alt-profit">₹${c.profit.toLocaleString("en-IN")} est.</div>
+                        <div class="bar-bg">
+                            <div class="bar-fill" data-target="${c.confidence}"></div>
+                        </div>
+                        <div class="bar-label">${c.confidence}% confidence</div>
+                    </div>
+                `).join("")}
+            </div>
+        </div>
+        ` : ""}
 
     </div>
     `;
 
-    document.getElementById("result").innerHTML = html;
-}
+            // Animate confidence ring
+            requestAnimationFrame(() => {
+                const ring = document.getElementById("ringFill");
+                if (ring) ring.style.strokeDashoffset = ringOffset;
+            });
 
-</script>
+            // Animate progress bars
+            document.querySelectorAll(".bar-fill").forEach(bar => {
+                const target = bar.dataset.target;
+                requestAnimationFrame(() => { bar.style.width = target + "%"; });
+            });
+        }
 
+    </script>
 </body>
+
 </html>
