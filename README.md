@@ -65,7 +65,7 @@ An AI-powered web application that recommends the most suitable crop based on so
 
 ### Input Form
 <p align="center">
-  <img src="./assets/input-form.png" width="900"/>
+  <img src="./assets/input.png" width="900"/>
 </p>
 
 ### Analysis & Risk
